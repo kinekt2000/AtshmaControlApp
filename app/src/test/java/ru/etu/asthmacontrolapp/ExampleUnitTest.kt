@@ -1,4 +1,4 @@
-package com.example.asthmacontrolapp
+package ru.etu.asthmacontrolapp
 
 import org.junit.Test
 

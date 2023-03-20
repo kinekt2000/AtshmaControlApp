@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -17,18 +18,16 @@ import androidx.compose.ui.unit.sp
 import ru.etu.asthmacontrolapp.ui.theme.AsthmaControlAppTheme
 
 @Composable
-fun FiveRatingQuestion(
+fun QuestionList(
     question: String,
     answers: List<String> = listOf<String>(
         "Answer 1", "Answer 2", "Answer 3", "Answer 4", "Answer 5"
     ),
     fontSize: Float = 20.0f,
+    selected: Int = -1,
     onSelect: (value: Int) -> Unit
 ) {
-    val (value, setValue) = remember { mutableStateOf(-1) }
-
     fun selectValue(value: Int) {
-        setValue(value)
         onSelect(value)
     }
 
@@ -39,7 +38,6 @@ fun FiveRatingQuestion(
         Text(
             question,
             fontSize = (fontSize * 1.2f).sp,
-            modifier = Modifier.padding(vertical = (fontSize * 2).dp)
         )
         Column() {
             answers.forEachIndexed { index, s ->
@@ -47,7 +45,7 @@ fun FiveRatingQuestion(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    RadioButton(selected = (index == value), onClick = { selectValue(index) })
+                    RadioButton(selected = (index == selected), onClick = { selectValue(index) })
                     Text(s, fontSize = (fontSize).sp)
                 }
             }
@@ -58,13 +56,16 @@ fun FiveRatingQuestion(
 @Preview(showBackground = true)
 @Composable
 fun QuestionPreview() {
-    val (value, setValue) = remember { mutableStateOf(0) }
+    val (value, setValue) = remember { mutableStateOf(-1) }
 
     AsthmaControlAppTheme {
         Text(text = value.toString())
-        FiveRatingQuestion(
+        QuestionList(
             question = "How's your mood?",
-            onSelect = { v -> setValue(v) })
+            answers = listOf("question 1?", "question 2?"),
+            onSelect = { v -> setValue(v) },
+            selected = value
+        )
     }
 }
 

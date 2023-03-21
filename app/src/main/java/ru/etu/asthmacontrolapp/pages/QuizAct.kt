@@ -1,6 +1,7 @@
 package ru.etu.asthmacontrolapp.pages
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -10,6 +11,7 @@ import ru.etu.asthmacontrolapp.classes.AnswersStorage
 
 import ru.etu.asthmacontrolapp.classes.Question
 import ru.etu.asthmacontrolapp.compopents.MultiPageQuiz
+import ru.etu.asthmacontrolapp.compopents.QuizResult
 import ru.etu.asthmacontrolapp.ui.theme.AsthmaControlAppTheme
 
 private val questionList = listOf(
@@ -54,8 +56,25 @@ private val questionList = listOf(
     )
 )
 
+private fun answersKey(answers: List<Int>): String {
+    val sum = answers.sum()
+
+    if (sum < 20) {
+        return "За последние 4 недели Вам НЕ удавалось контролировать астму. Ваш врач может посоветовать Вам, " +
+                "какие меры нужно применять, чтобы добиться улучшения контроля над Вашим заболеванием"
+    }
+
+    if (sum < 25) {
+        return "За последние 4 недели Вы ХОРОШО КОНТРОЛИРВОАЛИ астму, но НЕ ПОЛНОСТЬЮ. Ваш врач поможет Вам добиться полного контроля"
+    }
+
+    return "Вы ПОЛНОСТЬЮ КОНТРОЛИРОВАЛИ астму за последние 4 недели. У Вас не " +
+            "было симптомов астмы и связанных с ней ограничений. Проконсультируйтесь с врачом, если " +
+            "ситуация изменится."
+}
+
 @Composable
-fun QuizAct() {
+fun QuizAct(onExit: () -> Unit = {}) {
     @SuppressLint("MutableCollectionMutableState") // reference to actual list is more valuable than the content
     var answers by remember { mutableStateOf(MutableList(questionList.size) { 0 }) }
     var finished by remember { mutableStateOf(false) }
@@ -95,16 +114,27 @@ fun QuizAct() {
             launch {
                 answersStorage.saveAnswers(lAnswers)
                 answers = lAnswers.toMutableList()
+                finished = true
             }
         }
     }
 
-    MultiPageQuiz(
-        questionList = questionList,
-        initialAnswers = answers,
-        onAnswer = { questionIndex, answerIndex -> answerEvent(questionIndex, answerIndex) },
-        onFinish = { lAnswers -> finishEvent(lAnswers) }
-    )
+    if (finished) {
+        Log.d("QuizAct", answers.toString())
+        QuizResult(
+            heading = answersKey(answers),
+            questions = questionList,
+            answers = answers,
+            onExit = { onExit() })
+    } else {
+        MultiPageQuiz(
+            questionList = questionList,
+            initialAnswers = answers,
+            onAnswer = { questionIndex, answerIndex -> answerEvent(questionIndex, answerIndex) },
+            onFinish = { lAnswers -> finishEvent(lAnswers) },
+            onExit = { onExit() }
+        )
+    }
 }
 
 @Preview(showBackground = true)

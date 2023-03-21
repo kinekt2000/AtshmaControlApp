@@ -39,20 +39,20 @@ fun MultiPageQuiz(
 
     fun nextButtonAction() {
         currentQuestion = min(currentQuestion + 1, questionList.size - 1)
-        isLastQuestion = (currentQuestion == questionList.size - 1)
+        onAnswer(currentQuestion - 1, answers[currentQuestion - 1])
         if (isLastQuestion) {
             onFinish(answers)
         } else {
-            onAnswer(currentQuestion - 1, answers[currentQuestion - 1])
+            isLastQuestion = (currentQuestion == questionList.size - 1)
         }
     }
 
     fun prevButtonAction() {
         currentQuestion = max(currentQuestion - 1, 0)
-        isLastQuestion = (currentQuestion == questionList.size - 1)
         if (currentQuestion == 0) {
             onExit()
         }
+        isLastQuestion = (currentQuestion == questionList.size - 1)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {

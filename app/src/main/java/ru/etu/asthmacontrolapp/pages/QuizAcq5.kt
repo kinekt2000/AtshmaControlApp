@@ -11,6 +11,7 @@ import ru.etu.asthmacontrolapp.classes.AnswersStorage
 
 import ru.etu.asthmacontrolapp.classes.Question
 import ru.etu.asthmacontrolapp.compopents.MultiPageQuiz
+import ru.etu.asthmacontrolapp.compopents.QuizResult
 import ru.etu.asthmacontrolapp.ui.theme.AsthmaControlAppTheme
 
 private val questionList: List<Question> = listOf(
@@ -72,8 +73,23 @@ private val questionList: List<Question> = listOf(
     )
 )
 
+private fun answersKey(answers: List<Int>): String {
+    fun Float.format(digits: Int) = "%.${digits}f".format(this)
+    val grade: Float = answers.sum().toFloat() / questionList.size - 1
+
+    if (grade < 0.75) {
+        return "ACQ-5 = ${grade.format(2)}. Данное значение достоверно свидетельствует о хорошем контроле бронхиальной астмы"
+    }
+
+    if (grade > 1.5) {
+        return "ACQ-5 = ${grade.format(2)}. Данное значение говорит о неконтролируемом течении бронхиальной астмы"
+    }
+
+    return "ACQ-5 = ${grade.format(2)}. Данное значение говорит об умеренной возможности контролировать бронхиальную астму"
+}
+
 @Composable
-fun QuizAcq5() {
+fun QuizAcq5(onExit: () -> Unit = {}) {
     @SuppressLint("MutableCollectionMutableState") // reference to actual list is more valuable than the content
     var answers by remember { mutableStateOf(MutableList(questionList.size) { 0 }) }
     var finished by remember { mutableStateOf(false) }
@@ -99,12 +115,6 @@ fun QuizAcq5() {
         }
     }
 
-    DisposableEffect(Unit) {
-        onDispose {
-            Log.d("QuizAc15", "Destroy Composable")
-        }
-    }
-
     fun answerEvent(questionIndex: Int, answerIndex: Int) {
         runBlocking {
             launch {
@@ -123,12 +133,21 @@ fun QuizAcq5() {
         }
     }
 
-    MultiPageQuiz(
-        questionList = questionList,
-        initialAnswers = answers,
-        onAnswer = { questionIndex, answerIndex -> answerEvent(questionIndex, answerIndex) },
-        onFinish = { lAnswers -> finishEvent(lAnswers) }
-    )
+    if (finished) {
+        QuizResult(
+            heading = answersKey(answers),
+            questions = questionList,
+            answers = answers,
+            onExit = { onExit() })
+    } else {
+        MultiPageQuiz(
+            questionList = questionList,
+            initialAnswers = answers,
+            onAnswer = { questionIndex, answerIndex -> answerEvent(questionIndex, answerIndex) },
+            onFinish = { lAnswers -> finishEvent(lAnswers) },
+            onExit = { onExit() }
+        )
+    }
 }
 
 @Preview(showBackground = true)

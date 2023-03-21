@@ -14,13 +14,17 @@ import kotlin.properties.ReadOnlyProperty
 class AnswersStorage(private val context: Context, private val storageName: String) {
     companion object {
         @JvmStatic
-        private var storage: ReadOnlyProperty<Context, DataStore<Preferences>>? = null
+        private var storageMap: MutableMap<String, ReadOnlyProperty<Context, DataStore<Preferences>>?> =
+            mutableMapOf()
     }
 
+    private var storage: ReadOnlyProperty<Context, DataStore<Preferences>>? = null
+
     init {
-        if (storage == null) {
-            storage = preferencesDataStore(storageName)
+        if (storageMap.getOrDefault(storageName, null) == null) {
+            storageMap[storageName] = preferencesDataStore(storageName)
         }
+        storage = storageMap[storageName]
     }
 
     protected fun finalize() {

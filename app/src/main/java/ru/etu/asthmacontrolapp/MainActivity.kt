@@ -45,16 +45,18 @@ fun Main(navController: NavHostController) {
     NavHost(
         navController = navController,
         startDestination = "selector",
-        modifier = Modifier.fillMaxSize().padding(10.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)
     ) {
         composable("selector") {
             QuizSelector(onSelect = { page -> navController.navigate(page) })
         }
         composable("act") {
-            QuizAct()
+            QuizAct(onExit = { navController.navigate("selector") })
         }
         composable("acq5") {
-            QuizAcq5()
+            QuizAcq5(onExit = { navController.navigate("selector") })
         }
     }
 }

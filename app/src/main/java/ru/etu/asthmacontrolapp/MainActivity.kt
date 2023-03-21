@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ru.etu.asthmacontrolapp.pages.QuizAcq5
 import ru.etu.asthmacontrolapp.pages.QuizAct
+import ru.etu.asthmacontrolapp.pages.QuizGina
 import ru.etu.asthmacontrolapp.pages.QuizSelector
 
 import ru.etu.asthmacontrolapp.ui.theme.AsthmaControlAppTheme
@@ -57,6 +58,9 @@ fun Main(navController: NavHostController) {
         }
         composable("acq5") {
             QuizAcq5(onExit = { navController.navigate("selector") })
+        }
+        composable("gina") {
+            QuizGina(onExit = { navController.navigate("selector") })
         }
     }
 }

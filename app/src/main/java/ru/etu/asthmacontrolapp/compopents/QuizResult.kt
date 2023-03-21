@@ -21,7 +21,7 @@ fun QuizResult(
     answers: List<Int>,
     onExit: () -> Unit = {}
 ) {
-    var showResult by remember { mutableStateOf(true) }
+    var showResult by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier

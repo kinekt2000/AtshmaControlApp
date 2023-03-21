@@ -129,6 +129,7 @@ fun QuizAcq5(onExit: () -> Unit = {}) {
             launch {
                 answersStorage.saveAnswers(lAnswers)
                 answers = lAnswers.toMutableList()
+                finished = true
             }
         }
     }

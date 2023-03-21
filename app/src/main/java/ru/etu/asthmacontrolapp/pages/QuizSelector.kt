@@ -61,6 +61,23 @@ fun QuizSelector(onSelect: (value: String) -> Unit) {
                     fontSize = 24.sp
                 )
             }
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedButton(
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colors.onSurface,
+                ),
+                border = BorderStroke(
+                    ButtonDefaults.OutlinedBorderSize,
+                    MaterialTheme.colors.onSurface
+                ),
+                onClick = { onSelect("gina") }) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Анкета GINA",
+                    textAlign = TextAlign.Center,
+                    fontSize = 24.sp
+                )
+            }
         }
     }
 }

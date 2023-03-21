@@ -16,6 +16,10 @@ class AnswersStorage(private val context: Context, private val storageName: Stri
         @JvmStatic
         private var storageMap: MutableMap<String, ReadOnlyProperty<Context, DataStore<Preferences>>?> =
             mutableMapOf()
+
+        protected fun finalize() {
+            storageMap.clear()
+        }
     }
 
     private var storage: ReadOnlyProperty<Context, DataStore<Preferences>>? = null
@@ -25,10 +29,6 @@ class AnswersStorage(private val context: Context, private val storageName: Stri
             storageMap[storageName] = preferencesDataStore(storageName)
         }
         storage = storageMap[storageName]
-    }
-
-    protected fun finalize() {
-        storage = null
     }
 
     suspend fun saveAnswers(answers: List<Int>) {

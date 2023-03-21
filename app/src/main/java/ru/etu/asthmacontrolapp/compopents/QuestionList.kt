@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Card
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -35,10 +36,16 @@ fun QuestionList(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            question,
-            fontSize = (fontSize * 1.2f).sp,
-        )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = 8.dp,
+        ) {
+            Text(
+                text = question,
+                fontSize = (fontSize * 1.2f).sp,
+                modifier = Modifier.padding(5.dp)
+            )
+        }
         Column() {
             answers.forEachIndexed { index, s ->
                 Row(
@@ -62,7 +69,7 @@ fun QuestionPreview() {
         Text(text = value.toString())
         QuestionList(
             question = "How's your mood?",
-            answers = listOf("question 1?", "question 2?"),
+            answers = listOf("good", "bad"),
             onSelect = { v -> setValue(v) },
             selected = value
         )

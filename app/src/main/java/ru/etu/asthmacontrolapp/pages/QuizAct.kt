@@ -120,7 +120,6 @@ fun QuizAct(onExit: () -> Unit = {}) {
     }
 
     if (finished) {
-        Log.d("QuizAct", answers.toString())
         QuizResult(
             heading = answersKey(answers),
             questions = questionList,

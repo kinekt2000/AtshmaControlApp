@@ -1,15 +1,21 @@
 package ru.etu.asthmacontrolapp.pages
 
 import android.annotation.SuppressLint
-import android.util.Log
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import ru.etu.asthmacontrolapp.classes.AnswersStorage
 
 import ru.etu.asthmacontrolapp.classes.Question
+import ru.etu.asthmacontrolapp.compopents.LoadingIndicator
 import ru.etu.asthmacontrolapp.compopents.MultiPageQuiz
 import ru.etu.asthmacontrolapp.compopents.QuizResult
 import ru.etu.asthmacontrolapp.ui.theme.AsthmaControlAppTheme
@@ -74,7 +80,7 @@ private fun answersKey(answers: List<Int>): String {
 }
 
 @Composable
-fun QuizAct(onExit: () -> Unit = {}) {
+fun QuizAct(patientId: Long, onExit: () -> Unit = {}) {
     @SuppressLint("MutableCollectionMutableState") // reference to actual list is more valuable than the content
     var answers by remember { mutableStateOf(MutableList(questionList.size) { 0 }) }
     var finished by remember { mutableStateOf(false) }
@@ -85,8 +91,17 @@ fun QuizAct(onExit: () -> Unit = {}) {
         derivedStateOf {
             AnswersStorage(
                 context,
-                "act"
+                "act",
+                patientId
             )
+        }
+    }
+
+    DisposableEffect(patientId) {
+        onDispose {
+            runBlocking {
+                answersStorage.destroy()
+            }
         }
     }
 
@@ -119,20 +134,35 @@ fun QuizAct(onExit: () -> Unit = {}) {
         }
     }
 
-    if (finished) {
-        QuizResult(
-            heading = answersKey(answers),
-            questions = questionList,
-            answers = answers,
-            onExit = { onExit() })
+    if (loaded) {
+        if (finished) {
+            QuizResult(
+                heading = answersKey(answers),
+                questions = questionList,
+                answers = answers,
+                onExit = { onExit() })
+        } else {
+            MultiPageQuiz(
+                questionList = questionList,
+                initialAnswers = answers,
+                onAnswer = { questionIndex, answerIndex ->
+                    answerEvent(
+                        questionIndex,
+                        answerIndex
+                    )
+                },
+                onFinish = { lAnswers -> finishEvent(lAnswers) },
+                onExit = { onExit() }
+            )
+        }
     } else {
-        MultiPageQuiz(
-            questionList = questionList,
-            initialAnswers = answers,
-            onAnswer = { questionIndex, answerIndex -> answerEvent(questionIndex, answerIndex) },
-            onFinish = { lAnswers -> finishEvent(lAnswers) },
-            onExit = { onExit() }
-        )
+        Box(modifier = Modifier.fillMaxSize())
+        {
+            Box(modifier = Modifier.align(Alignment.Center))
+            {
+                LoadingIndicator(size = 100.dp, color = MaterialTheme.colors.onSurface)
+            }
+        }
     }
 }
 
@@ -140,6 +170,6 @@ fun QuizAct(onExit: () -> Unit = {}) {
 @Composable
 fun QuizActPreview() {
     AsthmaControlAppTheme {
-        QuizAct()
+        QuizAct(0)
     }
 }

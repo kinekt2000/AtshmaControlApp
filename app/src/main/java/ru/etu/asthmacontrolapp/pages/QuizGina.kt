@@ -2,12 +2,19 @@ package ru.etu.asthmacontrolapp.pages
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import ru.etu.asthmacontrolapp.classes.AnswersStorage
 import ru.etu.asthmacontrolapp.classes.Question
+import ru.etu.asthmacontrolapp.compopents.LoadingIndicator
 import ru.etu.asthmacontrolapp.compopents.MultiPageQuiz
 import ru.etu.asthmacontrolapp.compopents.QuizResult
 
@@ -46,7 +53,7 @@ private fun answersKey(answers: List<Int>): String {
 }
 
 @Composable
-fun QuizGina(onExit: () -> Unit = {}) {
+fun QuizGina(patientId: Long, onExit: () -> Unit = {}) {
     @SuppressLint("MutableCollectionMutableState") // reference to actual list is more valuable than the content
     var answers by remember { mutableStateOf(MutableList(questionList.size) { 0 }) }
     var finished by remember { mutableStateOf(false) }
@@ -57,8 +64,17 @@ fun QuizGina(onExit: () -> Unit = {}) {
         derivedStateOf {
             AnswersStorage(
                 context,
-                "gina"
+                "gina",
+                patientId
             )
+        }
+    }
+
+    DisposableEffect(patientId) {
+        onDispose {
+            runBlocking {
+                answersStorage.destroy()
+            }
         }
     }
 
@@ -91,19 +107,34 @@ fun QuizGina(onExit: () -> Unit = {}) {
         }
     }
 
-    if (finished) {
-        QuizResult(
-            heading = answersKey(answers),
-            questions = questionList,
-            answers = answers,
-            onExit = { onExit() })
+    if (loaded) {
+        if (finished) {
+            QuizResult(
+                heading = answersKey(answers),
+                questions = questionList,
+                answers = answers,
+                onExit = { onExit() })
+        } else {
+            MultiPageQuiz(
+                questionList = questionList,
+                initialAnswers = answers,
+                onAnswer = { questionIndex, answerIndex ->
+                    answerEvent(
+                        questionIndex,
+                        answerIndex
+                    )
+                },
+                onFinish = { lAnswers -> finishEvent(lAnswers) },
+                onExit = { onExit() }
+            )
+        }
     } else {
-        MultiPageQuiz(
-            questionList = questionList,
-            initialAnswers = answers,
-            onAnswer = { questionIndex, answerIndex -> answerEvent(questionIndex, answerIndex) },
-            onFinish = { lAnswers -> finishEvent(lAnswers) },
-            onExit = { onExit() }
-        )
+        Box(modifier = Modifier.fillMaxSize())
+        {
+            Box(modifier = Modifier.align(Alignment.Center))
+            {
+                LoadingIndicator(size = 100.dp, color = MaterialTheme.colors.onSurface)
+            }
+        }
     }
 }

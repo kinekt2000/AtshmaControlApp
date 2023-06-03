@@ -13,71 +13,115 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import ru.etu.asthmacontrolapp.ui.theme.AsthmaControlAppTheme
 
 @Composable
-fun QuizSelector(onSelect: (value: String) -> Unit) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxHeight()
-                .align(
-                    Alignment.TopCenter
-                )
-                .width(intrinsicSize = IntrinsicSize.Max),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OutlinedButton(
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colors.onSurface,
-                ),
-                border = BorderStroke(
-                    ButtonDefaults.OutlinedBorderSize,
-                    MaterialTheme.colors.onSurface
-                ),
-                onClick = { onSelect("act") }) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Анкета Act",
-                    textAlign = TextAlign.Center,
-                    fontSize = 24.sp
-                )
+fun QuizSelector(patientId: Long, onBack: () -> Unit) {
+    val navController = rememberNavController()
+
+    fun goBack() {
+        navController.navigateUp()
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = "quiz_selector",
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)
+    ) {
+        composable("quiz_selector") {
+            Box(modifier = Modifier.fillMaxSize()) {
+                OutlinedButton(
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colors.onSurface,
+                    ),
+                    border = BorderStroke(
+                        ButtonDefaults.OutlinedBorderSize,
+                        MaterialTheme.colors.onSurface
+                    ),
+                    onClick = { onBack() },
+                ) {
+                    Text(
+                        text = "Назад",
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp
+                    )
+                }
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .align(
+                            Alignment.TopCenter
+                        )
+                        .width(intrinsicSize = IntrinsicSize.Max),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OutlinedButton(
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colors.onSurface,
+                        ),
+                        border = BorderStroke(
+                            ButtonDefaults.OutlinedBorderSize,
+                            MaterialTheme.colors.onSurface
+                        ),
+                        onClick = { navController.navigate("act") }) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "Анкета Act",
+                            textAlign = TextAlign.Center,
+                            fontSize = 24.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedButton(
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colors.onSurface,
+                        ),
+                        border = BorderStroke(
+                            ButtonDefaults.OutlinedBorderSize,
+                            MaterialTheme.colors.onSurface
+                        ),
+                        onClick = { navController.navigate("acq5") }) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "Анкета Acq5",
+                            textAlign = TextAlign.Center,
+                            fontSize = 24.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedButton(
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colors.onSurface,
+                        ),
+                        border = BorderStroke(
+                            ButtonDefaults.OutlinedBorderSize,
+                            MaterialTheme.colors.onSurface
+                        ),
+                        onClick = { navController.navigate("gina") }) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "Анкета GINA",
+                            textAlign = TextAlign.Center,
+                            fontSize = 24.sp
+                        )
+                    }
+                }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedButton(
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colors.onSurface,
-                ),
-                border = BorderStroke(
-                    ButtonDefaults.OutlinedBorderSize,
-                    MaterialTheme.colors.onSurface
-                ),
-                onClick = { onSelect("acq5") }) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Анкета Acq5",
-                    textAlign = TextAlign.Center,
-                    fontSize = 24.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            OutlinedButton(
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colors.onSurface,
-                ),
-                border = BorderStroke(
-                    ButtonDefaults.OutlinedBorderSize,
-                    MaterialTheme.colors.onSurface
-                ),
-                onClick = { onSelect("gina") }) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = "Анкета GINA",
-                    textAlign = TextAlign.Center,
-                    fontSize = 24.sp
-                )
-            }
+        }
+        composable("act") {
+            QuizAct(patientId, onExit = { goBack() })
+        }
+        composable("acq5") {
+            QuizAcq5(patientId, onExit = { goBack() })
+        }
+        composable("gina") {
+            QuizGina(patientId, onExit = { goBack() })
         }
     }
 }
@@ -85,11 +129,8 @@ fun QuizSelector(onSelect: (value: String) -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-fun MainPreview() {
-    var page by remember { mutableStateOf("none") }
-
+fun QuizSelectorPreview() {
     AsthmaControlAppTheme {
-        Text(text = page)
-        QuizSelector(onSelect = { v -> page = v })
+        QuizSelector(0L, onBack = {})
     }
 }
